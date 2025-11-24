@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Котик ловить рибу — задачі для 1–9 класів</title>
+<style>
+  :root{
+    --bg-top:#e8f6ff;
+    --bg:#f6fbff;
+    --card:#ffffff;
+    --accent:#3b82f6;
+    --accent-2:#ffb74d;
+    --muted:#6b7785;
+    --text:#12323b;
+    --success:#0b9b46;
+    --danger:#c0392b;
+    --glass: rgba(20,40,60,0.04);
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg,var(--bg-top) 0%, var(--bg) 100%);
+    color:var(--text);
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    min-height:100vh;
+    padding:28px;
+  }
+  .app{
+    width:100%;
+    max-width:1100px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:18px;
+  }
+  .title-block{
+    display:flex;
+    gap:14px;
+    align-items:center;
+  }
+  .logo{
+    width:64px;height:64px;border-radius:14px;
+    background:linear-gradient(135deg,var(--accent),#2563eb);
+    display:flex;align-items:center;justify-content:center;color:white;font-size:30px;
+    box-shadow:0 8px 30px rgba(37,99,235,0.12);
+  }
+  .title{
+    font-size:20px;
+    font-weight:800;
+    line-height:1;
+  }
+  .subtitle{ color:var(--muted); font-size:13px; margin-top:6px; }
+  .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .levels{
+    display:flex;
+    gap:8px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+  }
+  .btn{
+    padding:8px 14px;
+    background:var(--card);
+    border-radius:10px;
+    border:1px solid var(--glass);
+    cursor:pointer;
+    box-shadow:0 2px 8px rgba(16,24,40,0.03);
+    font-weight:700;
+    color:var(--text);
+    font-size:14px;
+  }
+  .btn.active{
+    background:linear-gradient(180deg,var(--accent),#2563eb);
+    color:white;
+    box-shadow:0 8px 26px rgba(37,99,235,0.18);
+    border: none;
+  }
+  main{
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:18px;
+    align-items:start;
+  }
+  .card{
+    background:var(--card);
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 10px 30px rgba(16,24,40,0.06);
+  }
+  .task{
+    margin-bottom:14px;
+    padding:12px;
+    border-radius:10px;
+    border:1px dashed rgba(16,24,40,0.03);
+    background:linear-gradient(180deg, rgba(59,130,246,0.03), transparent);
+  }
+  .task h3{ margin:0 0 8px 0; font-size:15px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .task p{ margin:0 0 8px 0; color:var(--text); opacity:.95; }
+  input[type="text"], input[type="number"], select, textarea{
+    width:100%;
+    box-sizing:border-box;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid rgba(20,40,60,.08);
+    margin-bottom:8px;
+    font-size:14px;
+    color:var(--text);
+  }
+  .check{
+    display:inline-block;
+    padding:10px 14px;
+    border-radius:10px;
+    background:var(--accent);
+    color:white;
+    cursor:pointer;
+    border:none;
+    font-weight:800;
+    letter-spacing:.2px;
+  }
+  .hint{ font-size:13px; color:var(--muted); opacity:.95; margin-top:6px; }
+  .result{
+    margin-top:8px;
+    font-weight:700;
+    min-height:22px;
+    font-size:14px;
+  }
+  .right{ color:var(--success); display:inline-flex; gap:8px; align-items:center; }
+  .wrong{ color:var(--danger); display:inline-flex; gap:8px; align-items:center; }
+
+  /* sidebar - cat & fish */
+  .sidebar{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    align-items:center;
+  }
+  .cat-box{
+    width:320px;
+    height:240px;
+    border-radius:14px;
+    background:linear-gradient(180deg,#fff 0,#f5fbff 100%);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(20,40,60,.04);
+  }
+  .cat{
+    font-size:72px;
+    transform:translateY(8px);
+    transition:transform .25s ease;
+    filter: drop-shadow(0 6px 14px rgba(0,0,0,0.06));
+  }
+  .fish-pool{
+    position:absolute;
+    bottom:14px;
+    left:14px;
+    right:14px;
+    height:68px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px;
+  }
+  .fish{
+    font-size:30px;
+    transform-origin:center;
+    transition:transform .2s ease;
+    cursor:pointer;
+  }
+  .fish.fly{
+    animation:flyToCat 900ms cubic-bezier(.2,.9,.3,1) forwards;
+  }
+  @keyframes flyToCat{
+    0%{ transform: translate(0,0) scale(1) rotate(0deg); opacity:1; }
+    60%{ transform: translate(-80px,-120px) scale(1.05) rotate(-6deg); opacity:1; }
+    100%{ transform: translate(-160px,-220px) scale(.55) rotate(-22deg); opacity:0; }
+  }
+  .fish-count{
+    display:flex;
+    gap:8px;
+    align-items:center;
+    background:linear-gradient(180deg,#fff,#f7fbff);
+    padding:10px 14px;
+    border-radius:999px;
+    border:1px solid rgba(20,40,60,.06);
+    font-weight:800;
+    font-size:15px;
+  }
+  .note{ font-size:13px; color:var(--muted); opacity:.95; text-align:center; padding:6px 8px; }
+
+  .level-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:8px; }
+  .small-muted{ color:var(--muted); font-size:13px; }
+
+  /* responsive */
+  @media (max-width:980px){
+    main{ grid-template-columns: 1fr; }
+    .sidebar{ flex-direction:row; justify-content:space-between; padding:8px 4px; }
+    .cat-box{ width:100%; height:160px; }
+    .fish-pool{ bottom:8px; height:54px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title-block">
+      <div class="logo" aria-hidden="true">🐱</div>
+      <div>
+        <div class="title">Котик ловить рибу — вправи для 1–9 класів</div>
+        <div class="subtitle">Вибери рівень. За кожну правильну відповідь котик отримує рибку 🐟</div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="levels" role="tablist" aria-label="Рівні">
+        <button class="btn active" data-level="1" role="tab" aria-selected="true">1–4 клас</button>
+        <button class="btn" data-level="2" role="tab" aria-selected="false">5–7 клас</button>
+        <button class="btn" data-level="3" role="tab" aria-selected="false">8–9 клас</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card" id="tasks-area" aria-live="polite">
+      <!-- Tasks injected here -->
+    </section>
+
+    <aside class="card sidebar" aria-hidden="false">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+        <div class="cat-box" aria-hidden="true">
+          <div id="catEmoji" class="cat" title="Котик">🐱</div>
+          <div class="fish-pool" id="fishPool" aria-hidden="true" title="Рибки">
+            <!-- fish icons -->
+            <div class="fish" data-id="f1">🐟</div>
+            <div class="fish" data-id="f2">🐟</div>
+            <div class="fish" data-id="f3">🐟</div>
+            <div class="fish" data-id="f4">🐟</div>
+            <div class="fish" data-id="f5">🐟</div>
+            <div class="fish" data-id="f6">🐟</div>
+            <div class="fish" data-id="f7">🐟</div>
+          </div>
+        </div>
+
+        <div class="fish-count" aria-live="polite" title="Кількість рибок у котика">
+          <div>Рибок у котика:</div>
+          <div id="fishCount">0</div>
+        </div>
+        <div class="note">Кожна правильна відповідь дає 1 рибку. Спробуй відповісти на всі питання! Рибки зникатимуть із басейну по одній при правильній відповіді.</div>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<script>
+(function(){
+  /* ------------------------
+     Дані: завдання по рівнях
+     ------------------------ */
+  const levels = {
+    1: {
+      title: "1–4 клас (легкий)",
+      story: "Котик сидів на березі й ловив рибу. Допоможи йому з вправами!",
+      tasks: [
+        // 1
+        {
+          id: "m1_1",
+          subject: "Математика",
+          type: "number",
+          question: "Скільки буде 5 + 7?",
+          answer: 12,
+          hint: ""
+        },
+        // 2
+        {
+          id: "m1_2",
+          subject: "Математика",
+          type: "number",
+          question: "Знайди різницю: 15 − 8 = ?",
+          answer: 7,
+          hint: ""
+        },
+        // 3
+        {
+          id: "m1_3",
+          subject: "Математика",
+          type: "text",
+          question: "У котика було 4 яблука. Він віддав 2. Скільки яблук залишилося?",
+          answer: "2",
+          hint: ""
+        },
+        // 4
+        {
+          id: "u1_4",
+          subject: "Українська мова",
+          type: "text",
+          question: "Встав пропущене слово: «Котик ____ рибу декілька днів тому.» (ловить / ловив / ловила)",
+          answer: "ловив",
+          hint: ""
+        },
+        // 5
+        {
+          id: "u1_5",
+          subject: "Українська мова",
+          type: "mc",
+          question: "Визнач частину мови: слово 'швидко' — це ...",
+          choices: ["іменник", "прислівник", "прикметник"],
+          answer: "прислівник",
+          hint: ""
+        },
+        // 6
+        {
+          id: "r1_6",
+          subject: "Читання",
+          type: "mc",
+          question: "Прочитай: «Котик побачив рибку і тихо сів». Що зробив котик?",
+          choices: ["побіг", "тихо сів", "співав"],
+          answer: "тихо сів",
+          hint: ""
+        }
+      ]
+    },
+
+    2: {
+      title: "5–7 клас (середній)",
+      story: "Котик кличе друга — разом ловити більше риб. Завдання трохи складніші.",
+      tasks: [
+        // 1 пропорція
+        {
+          id: "m2_1",
+          subject: "Математика",
+          type: "text",
+          question: "Пропорція: Якщо 3 рибки важать 6 кг, скільки важитиме 1 рибка?",
+          answer: "2",
+          hint: ""
+        },
+        // 2 рівняння
+        {
+          id: "m2_2",
+          subject: "Математика",
+          type: "number",
+          question: "Розв'яжи: 2x + 5 = 21. Знайди x.",
+          answer: 8,
+          hint: ""
+        },
+        // 3 середнє арифметичне
+        {
+          id: "m2_3",
+          subject: "Математика",
+          type: "number",
+          question: "Знайди середнє арифметичне чисел 6, 9, 12.",
+          answer: 9,
+          hint: ""
+        },
+        // 4 тип речення
+        {
+          id: "u2_4",
+          subject: "Українська",
+          type: "mc",
+          question: "Визнач тип речення: 'Котик ловить рибку кожного ранку.' Це — ...",
+          choices: ["питальне", "розповідне", "спонукальне"],
+          answer: "розповідне",
+          hint: "Висловлює повідомлення."
+        },
+        // 5 підмет і присудок
+        {
+          id: "u2_5",
+          subject: "Українська",
+          type: "text",
+          question: "Знайди підмет та присудок у реченні: 'Котик ловить рибу.' Введи через кому: підмет,присудок",
+          answer: "Котик,ловить",
+          hint: ""
+        },
+        // 6 читання - підкресли прикметники (ввести через кому)
+        {
+          id: "r2_6",
+          subject: "Читання",
+          type: "text",
+          question: "У реченні 'Швидкий сірий кіт тихо сидів на теплому підвіконні.' підкресли всі прикметники (введи через кому).",
+          answerVariants: ["швидкий,сірий,теплому","швидкий,сірий,теплий","швидкий,теплому,сірий", "сірий,швидкий,теплому","сірий,теплому,швидкий","теплому,швидкий,сірий","теплий,швидкий,сірий","теплий,сірий,швидкий"],
+          hint: ""
+        }
+      ]
+    },
+
+    3: {
+      title: "8–9 клас (складний)",
+      story: "Котик вивчає течії річки, робить складніші вправи. Потрібно думати уважно.",
+      tasks: [
+        // 1 складні рівняння (визначимо приклад)
+        {
+          id: "m3_1",
+          subject: "Математика",
+          type: "text",
+          question: "Розв'яжи: 5х + 45 = 125",
+            answer: "16",
+            hint: ""
+        },
+        // 2 система або складне рівняння
+        {
+          id: "m3_2",
+          subject: "Математика",
+          type: "text",
+          question: "Розв'яжи систему: x + y = 5, x - y = 1. Введи як x=?,y=? (наприклад x=6,y=7).",
+          answer: "x=3,y=2",
+          hint: ""
+        },
+        // 3 геометрія: периметр трикутника
+        {
+          id: "g3_3",
+          subject: "Геометрія",
+          type: "number",
+          question: "Трикутник зі сторонами 7 см, 8 см і 9 см. Знайди його периметр (в см).",
+          answer: 24,
+          hint: ""
+        },
+        // 4 українська: розділові знаки
+        {
+          id: "u3_4",
+          subject: "Українська",
+          type: "text",
+          question: "Встав розділові знаки у речення: Котик який ловив рибу почув шум у кущах",
+          answer: "Котик, який ловив рибу, почув шум у кущах.",
+          hint: ""
+        },
+        // 5 читання: знайти підмет і присудок
+        {
+          id: "r3_5",
+          subject: "Читання",
+          type: "text",
+          question: "У реченні 'Тихого ранку кіт прокинувся і пішов до річки.' знайди підмет і присудок (через кому).",
+          answerVariants: ["кіт,прокинувся, пішов","кіт прокинувся і пішов", "кіт,прокинувся і пішов", "кіт,прокинувся,пішов", "кіт,прокинувся", "кіт,пішов"],
+          hint: ""
+        },
+        // 6 додаткове завдання (алгебра/аналіз) — щоб було 6 завдань
+        {
+          id: "m3_6",
+          subject: "Математика",
+          type: "number",
+          question: "Знайди x: 3x + 5 = 20",
+          answer: 5,
+          hint: ""
+        }
+      ]
+    }
+  };
+
+  /* ------------------------
+     Стан програми
+     ------------------------ */
+  let currentLevel = 1;
+  let fishCount = 0;
+  const awarded = new Set(); // щоб не нараховувати рибки кілька разів для одного завдання
+
+  /* ------------------------
+     DOM посилання
+     ------------------------ */
+  const tasksArea = document.getElementById('tasks-area');
+  const btns = document.querySelectorAll('.levels .btn');
+  const fishCountEl = document.getElementById('fishCount');
+  const fishPool = document.getElementById('fishPool');
+  const catEmoji = document.getElementById('catEmoji');
+
+  /* ------------------------
+     Головні функції
+     ------------------------ */
+
+  function renderLevel(levelId){
+    const data = levels[levelId];
+    tasksArea.innerHTML = '';
+
+    const header = document.createElement('div');
+    header.className = 'level-header';
+    header.innerHTML = `<div>
+      <h2 style="margin:0">${data.title}</h2>
+      <div class="small-muted" style="margin-top:6px">${data.story}</div>
+    </div>
+    <div style="text-align:right;">
+      <div class="small-muted">Завдань: ${data.tasks.length}</div>
+      <div style="height:6px"></div>
+    </div>`;
+    tasksArea.appendChild(header);
+    const list = document.createElement('div');
+
+    data.tasks.forEach((task, idx) => {
+      const t = document.createElement('div');
+      t.className = 'task';
+      t.id = task.id;
+
+      const qTitle = document.createElement('h3');
+      qTitle.innerHTML = `<span>${task.subject}</span><small style="font-weight:600;color:var(--muted);font-size:12px"> #${idx+1}</small>`;
+      t.appendChild(qTitle);
+
+      const q = document.createElement('p');
+      q.innerHTML = `<strong>${task.question}</strong>`;
+      t.appendChild(q);
+
+      const inputArea = document.createElement('div');
+
+      if(task.type === 'mc'){
+        task.choices.forEach((c, cidx) => {
+          const id = `${task.id}_opt_${cidx}`;
+          const label = document.createElement('label');
+          label.style.display='block';
+          label.style.marginBottom='6px';
+          label.innerHTML = `<input type="radio" name="${task.id}" value="${c}" id="${id}"> <span style="margin-left:8px">${c}</span>`;
+          inputArea.appendChild(label);
+        });
+      } else if (task.type === 'number') {
+        const inp = document.createElement('input');
+        inp.type = 'number';
+        inp.name = task.id;
+        inp.inputMode = 'numeric';
+        inp.placeholder = 'Введи число...';
+        inputArea.appendChild(inp);
+      } else { // text
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.name = task.id;
+        inp.placeholder = 'Введи відповідь...';
+        inputArea.appendChild(inp);
+      }
+
+      const controls = document.createElement('div');
+      controls.style.display = 'flex';
+      controls.style.gap = '8px';
+      controls.style.alignItems = 'center';
+
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'check';
+      checkBtn.textContent = 'Перевірити';
+      checkBtn.onclick = () => checkAnswer(task);
+      controls.appendChild(checkBtn);
+
+      const hint = document.createElement('div');
+      hint.className = 'hint';
+      hint.textContent = task.hint || '';
+      inputArea.appendChild(controls);
+      inputArea.appendChild(hint);
+
+      const result = document.createElement('div');
+      result.className = 'result';
+      inputArea.appendChild(result);
+
+      t.appendChild(inputArea);
+      list.appendChild(t);
+    });
+
+    tasksArea.appendChild(list);
+
+    // reset fish visibility if needed
+    Array.from(document.querySelectorAll('.fish')).forEach(f => { f.style.visibility = 'visible'; f.classList.remove('fly'); });
+  }
+
+  function normalize(s){
+    if(s === null || s === undefined) return '';
+    return String(s).trim().replace(/\s+/g,' ').replace(/[«»„“]/g,'"').replace(/\u200B/g,'');
+  }
+
+  function normalizeLower(s){
+    return normalize(s).toLowerCase();
+  }
+
+  function parseListInput(user){
+    // split by comma or semicolon and trim
+    return user.split(/[;,]+/).map(x=>normalizeLower(x)).filter(Boolean);
+  }
+
+  function checkAnswer(task){
+    const el = document.getElementById(task.id);
+    const resultEl = el.querySelector('.result');
+
+    // if already awarded for this task, do not award again
+    if(awarded.has(task.id)){
+      resultEl.innerHTML = `<span class="right">Вже правильно ✅ Рибка вже на рахунку.</span>`;
+      return;
+    }
+
+    let userVal = '';
+    if(task.type === 'mc'){
+      const sel = el.querySelector(`input[name="${task.id}"]:checked`);
+      userVal = sel ? sel.value : '';
+    } else {
+      const input = el.querySelector(`input[name="${task.id}"]`);
+      userVal = input ? input.value : '';
+    }
+
+    // evaluate correctness
+    let correct = false;
+
+    if(task.type === 'number'){
+      const num = Number(userVal);
+      correct = (Number.isFinite(num) && Number(task.answer) === num);
+    } else if (task.type === 'mc'){
+      correct = normalizeLower(userVal) === normalizeLower(task.answer);
+    } else { // text
+      if(task.answerVariants){
+        const normalized = normalizeLower(userVal);
+        correct = task.answerVariants.some(v => normalized === normalizeLower(v));
+      } else if (typeof task.answer === 'string' && task.answer.includes(',')){
+        // some answers are "a,b" (like "Котик,ловить") - normalize order-insensitive
+        const expected = parseListInput(task.answer);
+        const given = parseListInput(userVal || '');
+        // check that given contains at least expected items (order-insensitive)
+        correct = expected.length > 0 && expected.every(e => given.includes(e));
+      } else {
+        correct = normalizeLower(userVal) === normalizeLower(task.answer);
+      }
+    }
+
+    if(correct){
+      resultEl.innerHTML = `<span class="right">Правильно! Котик отримує рибку 🐟</span>`;
+      // mark awarded
+      awarded.add(task.id);
+      // disable check button
+      const btn = el.querySelector('.check');
+      if(btn){ btn.disabled = true; btn.style.opacity = '.6'; }
+      giveFishAnimation();
+    } else {
+      resultEl.innerHTML = `<span class="wrong">Неправильно. Спробуй ще.</span>`;
+      // small shake animation for wrong (CSS-free approach)
+      resultEl.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 300 });
+    }
+  }
+
+  function giveFishAnimation(){
+    const fishes = Array.from(document.querySelectorAll('.fish'));
+    const available = fishes.find(f => !f.classList.contains('fly') && f.style.visibility!=='hidden');
+    if(!available){
+      // no visible fish; just increment count and pulse cat
+      fishCount++;
+      updateFishCount();
+      catEmoji.style.transform = 'translateY(-6px) scale(1.06)';
+      setTimeout(()=> catEmoji.style.transform = 'translateY(8px)', 350);
+      return;
+    }
+    // animate one fish flying
+    available.classList.add('fly');
+    setTimeout(()=>{
+      available.style.visibility = 'hidden';
+      available.classList.remove('fly');
+      fishCount++;
+      updateFishCount();
+      catEmoji.style.transform = 'translateY(-8px) scale(1.08)';
+      setTimeout(()=> catEmoji.style.transform = 'translateY(8px)', 420);
+    }, 920);
+  }
+
+  function updateFishCount(){
+    fishCountEl.textContent = fishCount;
+  }
+
+  // attach level buttons
+  btns.forEach(b => {
+    b.addEventListener('click', () => {
+      btns.forEach(x => { x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+      b.classList.add('active');
+      b.setAttribute('aria-selected','true');
+      currentLevel = Number(b.dataset.level);
+      renderLevel(currentLevel);
+    });
+  });
+
+  // initial render
+  renderLevel(currentLevel);
+
+  // keyboard: Enter in inputs triggers check for that task
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Enter'){
+      const active = document.activeElement;
+      if(active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')){
+        // find nearest task container
+        const taskDiv = active.closest('.task');
+        if(taskDiv){
+          const id = taskDiv.id;
+          // find the task object
+          const level = levels[currentLevel];
+          if(!level) return;
+          const task = level.tasks.find(t => t.id === id);
+          if(task) checkAnswer(task);
+        }
+      }
+    }
+  });
+
+  // allow clicking fish to preview animation (fun)
+  Array.from(document.querySelectorAll('.fish')).forEach(f=>{
+    f.addEventListener('click', ()=> {
+      if(!f.classList.contains('fly') && f.style.visibility!=='hidden'){
+        f.classList.add('fly');
+        setTimeout(()=> { f.classList.remove('fly'); }, 900);
+      }
+    });
+  });
+
+})();
+</script>
+</body>
+</html>
